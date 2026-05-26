@@ -1,0 +1,2 @@
+PORT=3000
+DATABASE_URL=DATABASE_URL="postgresql://postgres:Quzwuuuu1@localhost:5432/protracker_ai"
