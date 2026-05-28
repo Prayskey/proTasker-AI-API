@@ -7,31 +7,32 @@ import authRoutes from './routes/auth.routes.js';
 import errorHandler from './middlewares/error.middleware.js';
 
 const app = express();
+
+app.use(helmet());
+
 const corsOptions = {
-  origin: '*',
+  origin: process.env.ALLOWED_ORIGIN || 'http://localhost:3000',
   optionsSuccessStatus: 200,
 };
-// Rate limiting middleware configuration
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minute time window
-  limit: 100, // Limit each IP to 100 requests per window
-  message: 'Too many requests, please try again later.',
-  standardHeaders: 'draft-8', // Includes rate limit info in headers
-});
-
-// Apply globally or to specific routes
-app.use('/api/', limiter); //
-app.use(helmet());
-app.use(express.json());
 app.use(cors(corsOptions));
 
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 100,
+  message: { error: 'Too many requests, please try again later.' },
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+});
+app.use('/api', limiter);
 
+app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.json("You've successfully connected to the server!");
+  res.json({ message: "You've successfully connected to the server!" });
 });
 
 app.use('/api/auth', authRoutes);
+
 app.use(errorHandler);
 
 export default app;
